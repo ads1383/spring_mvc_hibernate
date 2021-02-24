@@ -9,7 +9,7 @@ import web.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
+
 @Service
 public class UserServiceImp implements UserService{
 
@@ -20,30 +20,31 @@ public class UserServiceImp implements UserService{
 
     @Autowired
     public UserServiceImp(UserDao userDao) {
-        super();
         this.userDao = userDao;
     }
 
+    @Transactional
     @Override
     public void save(User user) {
         userDao.save(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> listUsers() {
-        List list = new ArrayList();
-        userDao.findAll().forEach(e -> list.add(e));
-        return list;
+        return userDao.listUsers();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User getById(Long id) {
-        return userDao.findById(id).get();
+        return userDao.getById(id);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        userDao.deleteById(id);
+        userDao.delete(id);
     }
 
 }

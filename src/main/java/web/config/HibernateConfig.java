@@ -15,19 +15,20 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories("web.dao")
 @PropertySource("classpath:db.properties")
 public class HibernateConfig {
 
     @Autowired
     private Environment environment;
 
-    @Bean(name = "entityManagerFactory")
+    @Bean
     public LocalContainerEntityManagerFactoryBean getEntityManagerFactoryBean() {
         LocalContainerEntityManagerFactoryBean lcemfb = new LocalContainerEntityManagerFactoryBean();
         lcemfb.setJpaVendorAdapter(getJpaVendorAdapter());
@@ -46,8 +47,9 @@ public class HibernateConfig {
 
     @Bean(name = "transactionManager")
     public PlatformTransactionManager txManager() {
-        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(
-                getEntityManagerFactoryBean().getObject());
+        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
+        jpaTransactionManager.setEntityManagerFactory(getEntityManagerFactoryBean().getObject());
+        jpaTransactionManager.setDataSource(dataSource());
         return jpaTransactionManager;
     }
 
@@ -66,6 +68,9 @@ public class HibernateConfig {
         properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
         properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"));
+        properties.put("hibernate.connection.characterEncoding", "utf8");
+        properties.put("hibernate.connection.CharSet", "utf8");
+        properties.put("hibernate.connection.useUnicode", true);
         return properties;
     }
 
